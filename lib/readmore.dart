@@ -35,6 +35,7 @@ class ReadMoreText extends StatefulWidget {
     this.callback,
     this.onLinkPressed,
     this.linkTextStyle,
+    this.fullyInteractive = false
   }) : super(key: key);
 
   /// Used on TrimMode.Length
@@ -72,6 +73,9 @@ class ReadMoreText extends StatefulWidget {
   final ValueChanged<String>? onLinkPressed;
 
   final TextStyle? linkTextStyle;
+
+  /// set whether the entire text is clickable or not
+  final bool fullyInteractive;
 
   final String delimiter;
   final String data;
@@ -302,7 +306,10 @@ class ReadMoreTextState extends State<ReadMoreText> {
         ),
       );
     }
-    return result;
+    return GestureDetector(
+      onTap: widget.fullyInteractive ? _onTapLink : null,
+      child: result,
+    );
   }
 
   TextSpan _buildData({
@@ -312,7 +319,7 @@ class ReadMoreTextState extends State<ReadMoreText> {
     ValueChanged<String>? onPressed,
     required List<TextSpan> children,
   }) {
-    RegExp exp = RegExp(r'(?:(?:https?|ftp):\/\/)?[\w/\-?=%.]+\.[\w/\-?=%.]+');
+    RegExp exp = RegExp(r'(?:(?:https?|ftp)://)?[\w/\-?=%.]+\.[\w/\-?=%.]+');
 
     List<TextSpan> contents = [];
 
@@ -332,9 +339,7 @@ class ReadMoreTextState extends State<ReadMoreText> {
           text: linkTextPart,
           style: linkTextStyle,
           recognizer: TapGestureRecognizer()
-            ..onTap = () => onPressed?.call(
-                  linkTextPart.trim(),
-                ),
+            ..onTap = () => onPressed?.call(linkTextPart.trim()),
         ),
       );
       data = data.substring(match.end, data.length);
